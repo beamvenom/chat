@@ -1,0 +1,14 @@
+.chat-box{
+    height:600px;
+    width:500px;
+    border-style:solid;
+    padding: 10px;
+    overflow-y: scroll;
+}
+.message-bubble{
+    padding: 5px;
+    width:200px;
+    overflow-wrap: break-word;
+    border-style:solid;
+    margin-bottom: 10px;
+}
