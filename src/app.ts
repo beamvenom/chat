@@ -3,8 +3,7 @@ import bodyParser from 'body-parser'
 import TextUploader from './services/text-uploader';
 import AWS from 'aws-sdk';
 import cors from 'cors';
-import awscred from '../awscred'
-
+import awscred from './awscred'
 
 const app = express();
 app.use(cors());
@@ -20,22 +19,17 @@ dynamo = new AWS.DynamoDB({apiVersion: '2012-08-10'});
 
 var uploader:TextUploader;
 
-app.get('/', (req, res) => {
-    res.send('Hello World2!');
-  });
-
 app.get('/test', (req, res) => {
     uploader = new TextUploader(awscredentials[0], awscredentials[1]);
     try{
         var response = uploader.upload("my-text.txt","hello");
-        
         res.send(response);
     }catch{
         res.send('test!');
     }
 });
-
-app.get('/chat', (req,res) => {
+app.get('/chat/:roomId', (req,res) => {
+    console.log(req.params.roomId)
     const params: AWS.DynamoDB.QueryInput = {
         TableName: "chat-room",
         KeyConditionExpression: "#roomId = :roomId",
@@ -43,8 +37,7 @@ app.get('/chat', (req,res) => {
             "#roomId": "roomId"
         },
         ExpressionAttributeValues: {
-            ':roomId': {N:'0'},
-            
+            ':roomId': {N:req.params.roomId},
         }
     };
     const result = dynamo.query(params, function(err, data){
@@ -57,7 +50,6 @@ app.get('/chat', (req,res) => {
             });
         }
       });
-    
 });
 app.post('/chat', (req,res) => {
     console.log(req)
