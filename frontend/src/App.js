@@ -4,12 +4,11 @@ import MessageBubble from './components/MessageBubble';
 import axios from 'axios'
 import { CognitoJwtVerifier } from "aws-jwt-verify";
 
-// Verifier that expects valid access tokens:
+import awscred from './awscred'
 
-
-const clientId = '';
-const clientSecret = '';
-const userPoolId = "";
+const clientId = awscred()[0];
+const clientSecret = awscred()[1];
+const userPoolId = awscred()[2];
 const body = `client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials`
 const url = `https://chatauth.auth.eu-west-1.amazoncognito.com/oauth2/authorize?response_type=token&client_id=${clientId}&redirect_uri=http://localhost:8080`
 
@@ -34,11 +33,11 @@ export default function App() {
             clientId: clientId,
         });
         try {
-        const payload = await verifier.verify(access_token);
-        console.log("Token is valid. Payload:", payload);
+            const payload = await verifier.verify(access_token);
+            console.log("Token is valid. Payload:", payload);
             setAccessToken(access_token);
         } catch {
-        console.log("Token not valid!");
+            console.log("Token not valid!");
         }
     }
     async function getUser(){
@@ -52,6 +51,7 @@ export default function App() {
         }}).then((res)=> {
             console.log(res.data.username)
             setUserList([res.data.username])
+            console.log(userList[0])
         })
         
         
@@ -80,7 +80,7 @@ export default function App() {
     function onInputEnterPress(event){
         if(event.key === "Enter"){
             
-            axios.post('http://localhost:3000/chat/0',{
+            axios.post('http://localhost:3000/chat',{
                 "roomId": "0",
                 "user": userList[0],
                 "message": event.target.value
@@ -97,16 +97,17 @@ export default function App() {
         <div>
 
             <h1>Chat</h1>
+            <div>You are {userList[0]}</div>
+            <button onClick={()=>login()} >login</button>
+            <button onClick={()=>updateChat()} >Enter Chat room</button>
+            <button onClick={()=>getUser()} >user</button>
             <div className="chat-box" >
                 {messageList}
             </div>
             <div style= {{height:'20px'}}></div>
+            
             <input type="text" value={inputText} onChange={(event)=>onInput(event)} onKeyDown={(event)=> onInputEnterPress(event)}></input>
-            <button onClick={()=>login()} >hej</button>
-            <button onClick={()=>getAccessToken()} >acc</button>
-            <button onClick={()=>updateChat()} >Enter Chat room</button>
-            <button onClick={()=>getUser()} >user</button>
-            <div>You are {userList[0]}</div>
+            
             
         </div>
     );
